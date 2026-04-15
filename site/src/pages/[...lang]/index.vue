@@ -25,16 +25,29 @@
 <script lang="ts" setup>
 import type { ResumeListItem } from "~/types";
 
-// Load resumes from storage
-const list = ref<ResumeListItem[]>();
+const browserResumeStore = useBrowserResumeStore();
+const localResumes = ref<ResumeListItem[]>([]);
+const fileResumes = ref<ResumeListItem[]>([]);
+
+const list = computed(() =>
+  [...browserResumeStore.resumeList, ...fileResumes.value, ...localResumes.value].sort((a, b) =>
+    (b.update || b.id).localeCompare(a.update || a.id)
+  )
+);
 
 const loadResumes = async () => {
-  const [localResumes, fileResumes] = await Promise.all([getResumeList(), getFileResumeList()]);
+  const [nextLocalResumes, nextFileResumes] = await Promise.all([
+    getResumeList(),
+    getFileResumeList()
+  ]);
 
-  list.value = [...fileResumes, ...localResumes].sort((a, b) =>
-    (b.update || b.id).localeCompare(a.update || a.id)
-  );
+  localResumes.value = nextLocalResumes;
+  fileResumes.value = nextFileResumes;
 };
 
 onMounted(loadResumes);
+
+useIntervalFn(async () => {
+  await browserResumeStore.refreshResumes();
+}, 1500);
 </script>
