@@ -54,10 +54,10 @@ export const setResume = (id: string, resume: ResumeStorageItem) => {
   setData("curResumeName", resume.name);
   setData("curResumeSource", resume.source || "local");
   setData("curResumeFileName", resume.fileName || null);
-  setData("curResumeFileUpdate", resume.source === "file" ? resume.update : null);
+  setData("curResumeFileUpdate", resume.source !== "local" ? resume.update : null);
   setData(
     "curResumeFileSyncedContent",
-    resume.source === "file" ? resume.markdown : ""
+    resume.source !== "local" ? resume.markdown : ""
   );
   setResumeMd(resume.markdown);
   setResumeCss(resume.css);
