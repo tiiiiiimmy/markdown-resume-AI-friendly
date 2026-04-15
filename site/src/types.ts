@@ -12,7 +12,7 @@ export type ResumeStyles = {
   paper: PaperType;
 };
 
-export type ResumeSource = "local" | "file";
+export type ResumeSource = "local" | "file" | "browser-file";
 
 export type SystemData = {
   mdContent: string;
