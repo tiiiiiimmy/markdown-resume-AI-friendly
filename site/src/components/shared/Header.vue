@@ -26,14 +26,7 @@
       <!--
       <ToggleDark />
       -->
-      <a
-        class="round-btn"
-        href="http://github.com/junian/markdown-resume/"
-        target="_blank"
-        rel="nofollow noopener"
-      >
-        <span i-tabler:brand-github md:text-lg />
-      </a>
+     
     </div>
   </header>
 </template>
