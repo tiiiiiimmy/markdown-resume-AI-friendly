@@ -90,6 +90,31 @@ pnpm dev
 pnpm build
 ```
 
+### Resume sources
+
+This project supports two Markdown resume workflows:
+
+#### 1. Project `resume/` folder
+
+You can place Markdown resumes under the project-level [`resume`](resume/) folder, for example `resume/a.md`.
+
+- File resumes are listed on the home page automatically
+- Opening a file resume reads the latest Markdown directly from disk
+- Saving the `.md` file updates the web preview automatically while that editor page is open
+
+This mode requires the Nuxt server runtime (`pnpm dev`, or `pnpm build` + `pnpm serve`) because static export cannot watch local files.
+
+#### 2. Local files or folders from the home page
+
+After the project is deployed, users can also load local Markdown files directly from the browser home page:
+
+- `Open MD`: choose a single local `.md` file
+- `Open Folder`: choose a local directory and load every `.md` file inside it
+- If the selected directory does not contain any `.md` files, the UI shows a prompt
+- When the selected local `.md` file is updated and saved outside the browser, the web preview refreshes automatically
+
+This browser-based mode depends on the File System Access API, so it works best in Chromium-based browsers on `https` or `localhost`.
+
 ## Credits
 
 - Original project: [Renovamen/oh-my-cv](https://github.com/Renovamen/oh-my-cv)
