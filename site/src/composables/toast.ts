@@ -4,73 +4,60 @@ export const useToast = () => {
   const nuxtApp = useNuxtApp();
   const $toast = computed(() => (nuxtApp.$toast as ComputedRef<toast.GroupApi>).value);
 
-  const save = () => {
+  const notify = (
+    description: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
     $toast.value.create({
-      description: nuxtApp.$i18n.t("notification.save"),
-      type: "success"
+      description,
+      type
     });
+  };
+
+  const save = () => {
+    notify(nuxtApp.$i18n.t("notification.save") as string, "success");
   };
 
   const switchResume = (msg: string) => {
-    $toast.value.create({
-      description: nuxtApp.$i18n.t("notification.switch", { msg }),
-      type: "info"
-    });
+    notify(nuxtApp.$i18n.t("notification.switch", { msg }) as string, "info");
   };
 
   const deleteResume = (msg: string) => {
-    $toast.value.create({
-      description: nuxtApp.$i18n.t("notification.delete", { msg }),
-      type: "error"
-    });
+    notify(nuxtApp.$i18n.t("notification.delete", { msg }) as string, "error");
   };
 
   const newResume = () => {
-    $toast.value.create({
-      description: nuxtApp.$i18n.t("notification.new"),
-      type: "success"
-    });
+    notify(nuxtApp.$i18n.t("notification.new") as string, "success");
   };
 
   const duplicate = (msg: string) => {
-    $toast.value.create({
-      description: nuxtApp.$i18n.t("notification.duplicate", {
+    notify(
+      nuxtApp.$i18n.t("notification.duplicate", {
         old: msg,
         new: msg + " Copy"
-      }),
-      type: "success"
-    });
+      }) as string,
+      "success"
+    );
   };
 
   const correct = (msg: true | number) => {
     if (msg === true) {
-      $toast.value.create({
-        description: nuxtApp.$i18n.t("notification.correct.no"),
-        type: "info"
-      });
+      notify(nuxtApp.$i18n.t("notification.correct.no") as string, "info");
     } else {
-      $toast.value.create({
-        description: nuxtApp.$i18n.t("notification.correct.yes", { num: msg }),
-        type: "success"
-      });
+      notify(nuxtApp.$i18n.t("notification.correct.yes", { num: msg }) as string, "success");
     }
   };
 
   const importResume = (msg: boolean) => {
     if (msg) {
-      $toast.value.create({
-        description: nuxtApp.$i18n.t("notification.import.yes"),
-        type: "success"
-      });
+      notify(nuxtApp.$i18n.t("notification.import.yes") as string, "success");
     } else {
-      $toast.value.create({
-        description: nuxtApp.$i18n.t("notification.import.no"),
-        type: "error"
-      });
+      notify(nuxtApp.$i18n.t("notification.import.no") as string, "error");
     }
   };
 
   return {
+    notify,
     save,
     switch: switchResume,
     delete: deleteResume,
