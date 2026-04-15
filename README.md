@@ -78,6 +78,14 @@ pnpm dev
 pnpm build
 ```
 
+File-based resumes can live under the project-level [`resume`](resume/) folder, for example `resume/a.md`.
+
+- File resumes are listed on the home page automatically
+- Opening a file resume reads the latest Markdown directly from disk
+- Saving the `.md` file updates the web preview automatically while that editor page is open
+
+This mode requires the Nuxt server runtime (`pnpm dev`, or `pnpm build` + `pnpm serve`), because static export cannot watch local files.
+
 ## Credits
 
 - Original project: [Renovamen/oh-my-cv](https://github.com/Renovamen/oh-my-cv)
