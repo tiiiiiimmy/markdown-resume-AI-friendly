@@ -37,6 +37,7 @@
 <script lang="ts" setup>
 import * as splitter from "@zag-js/splitter";
 import { normalizeProps, useMachine } from "@zag-js/vue";
+import type { ResumeStorageItem } from "~/types";
 
 // Horizontal splitpane
 const [state, send] = useMachine(
@@ -48,9 +49,58 @@ const [state, send] = useMachine(
 
 const api = computed(() => splitter.connect(state.value, send, normalizeProps));
 
-// Fetch resume data
 const route = useRoute();
-(async () => await switchResume(route.params.id as string))();
+const { data } = useDataStore();
+
+const applyResume = (id: string, resume: ResumeStorageItem) => {
+  setResume(id, resume);
+};
+
+const loadCurrentResume = async () => {
+  const id = route.params.id as string;
+  const fileName = parseFileResumeId(id);
+
+  if (fileName) {
+    const resume = await getFileResume(fileName);
+    applyResume(id, resume);
+    return;
+  }
+
+  await switchResume(id);
+};
+
+watch(
+  () => route.params.id,
+  () => {
+    void loadCurrentResume();
+  },
+  { immediate: true }
+);
+
+const hasUnsavedFileChanges = computed(
+  () =>
+    data.curResumeSource === "file" &&
+    data.mdContent !== data.curResumeFileSyncedContent
+);
+
+const syncFileResume = async () => {
+  if (data.curResumeSource !== "file" || !data.curResumeFileName) return;
+
+  let resume: ResumeStorageItem;
+
+  try {
+    resume = await getFileResume(data.curResumeFileName);
+  } catch {
+    return;
+  }
+
+  if (resume.update === data.curResumeFileUpdate) return;
+  if (hasUnsavedFileChanges.value) return;
+
+  applyResume(getFileResumeId(data.curResumeFileName), resume);
+};
+
+useIntervalFn(syncFileResume, 1500);
 
 // Toogle toolbar
 const { width } = useWindowSize();
