@@ -50,7 +50,10 @@ const [state, send] = useMachine(
 const api = computed(() => splitter.connect(state.value, send, normalizeProps));
 
 const route = useRoute();
+const router = useRouter();
+const localePath = useLocalePath();
 const { data } = useDataStore();
+const browserResumeStore = useBrowserResumeStore();
 
 const applyResume = (id: string, resume: ResumeStorageItem) => {
   setResume(id, resume);
@@ -58,7 +61,24 @@ const applyResume = (id: string, resume: ResumeStorageItem) => {
 
 const loadCurrentResume = async () => {
   const id = route.params.id as string;
+  const browserResumeId = parseBrowserResumeId(id);
   const fileName = parseFileResumeId(id);
+
+  if (browserResumeId) {
+    const resume = await browserResumeStore.getResume(browserResumeId);
+
+    if (!resume) {
+      useToast().notify(
+        "This local Markdown handle is no longer available. Please re-open it from the home page.",
+        "error"
+      );
+      await router.replace(localePath("/"));
+      return;
+    }
+
+    applyResume(id, resume);
+    return;
+  }
 
   if (fileName) {
     const resume = await getFileResume(fileName);
@@ -79,11 +99,22 @@ watch(
 
 const hasUnsavedFileChanges = computed(
   () =>
-    data.curResumeSource === "file" &&
+    data.curResumeSource !== "local" &&
     data.mdContent !== data.curResumeFileSyncedContent
 );
 
 const syncFileResume = async () => {
+  if (data.curResumeSource === "browser-file" && data.curResumeId) {
+    const resume = await browserResumeStore.refreshResume(data.curResumeId);
+
+    if (!resume) return;
+    if (resume.update === data.curResumeFileUpdate) return;
+    if (hasUnsavedFileChanges.value) return;
+
+    applyResume(data.curResumeId, resume);
+    return;
+  }
+
   if (data.curResumeSource !== "file" || !data.curResumeFileName) return;
 
   let resume: ResumeStorageItem;
