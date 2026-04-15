@@ -29,7 +29,11 @@ import type { ResumeListItem } from "~/types";
 const list = ref<ResumeListItem[]>();
 
 const loadResumes = async () => {
-  list.value = await getResumeList();
+  const [localResumes, fileResumes] = await Promise.all([getResumeList(), getFileResumeList()]);
+
+  list.value = [...fileResumes, ...localResumes].sort((a, b) =>
+    (b.update || b.id).localeCompare(a.update || a.id)
+  );
 };
 
 onMounted(loadResumes);
