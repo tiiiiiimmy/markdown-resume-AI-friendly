@@ -8,7 +8,11 @@ export const useDataStore = defineStore("data", () => {
     mdFlag: false,
     cssFlag: false,
     curResumeId: null,
-    curResumeName: DEFAULT_NAME
+    curResumeName: DEFAULT_NAME,
+    curResumeSource: "local",
+    curResumeFileName: null,
+    curResumeFileUpdate: null,
+    curResumeFileSyncedContent: ""
   });
 
   const setData = <T extends keyof SystemData>(key: T, value: SystemData[T]) => {
