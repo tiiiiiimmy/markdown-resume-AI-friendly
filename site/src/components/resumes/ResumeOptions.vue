@@ -1,5 +1,5 @@
 <template>
-  <div v-if="resume.source !== 'file'" class="absolute right-3 top-3 space-y-2">
+  <div v-if="resume.source === 'local'" class="absolute right-3 top-3 space-y-2">
     <button @click="duplicate">
       <span i-ion:duplicate />
     </button>
