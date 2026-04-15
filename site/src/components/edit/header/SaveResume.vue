@@ -11,10 +11,25 @@ import type { ResumeStorageItem } from "~/types";
 const { data, setData } = useDataStore();
 const { styles } = useStyleStore();
 const toast = useToast();
+const browserResumeStore = useBrowserResumeStore();
 
 const save = async () => {
   if (data.curResumeSource === "file" && data.curResumeFileName) {
     const resume = await saveFileResume(data.curResumeFileName, data.mdContent);
+    setData("curResumeFileUpdate", resume.update);
+    setData("curResumeFileSyncedContent", resume.markdown);
+    toast.save();
+    return;
+  }
+
+  if (data.curResumeSource === "browser-file" && data.curResumeId) {
+    const resume = await browserResumeStore.saveResume(data.curResumeId, data.mdContent);
+
+    if (!resume) {
+      toast.notify("Unable to save the local Markdown file. Please allow write access.", "error");
+      return;
+    }
+
     setData("curResumeFileUpdate", resume.update);
     setData("curResumeFileSyncedContent", resume.markdown);
     toast.save();
