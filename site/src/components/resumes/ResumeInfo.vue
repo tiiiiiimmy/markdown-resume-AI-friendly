@@ -1,7 +1,7 @@
 <template>
   <div text-center>
     <Editable
-      v-if="resume.source !== 'file'"
+      v-if="resume.source === 'local'"
       :id="`resumes-rename-${resume.id}`"
       class="w-53 mx-auto"
       :default="resume.name"
@@ -12,7 +12,7 @@
       {{ $t("resumes.updated") }}{{ updated }}
     </div>
     <div text-xs text-light-c mt-0.5>{{ $t("resumes.created") }}{{ created }}</div>
-    <div v-if="resume.source === 'file' && resume.fileName" text-xs text-light-c mt-0.5>
+    <div v-if="resume.source !== 'local' && resume.fileName" text-xs text-light-c mt-0.5>
       {{ resume.fileName }}
     </div>
   </div>
@@ -30,7 +30,7 @@ const emit = defineEmits<{
 }>();
 
 const rename = async (text: string) => {
-  if (props.resume.source === "file") return;
+  if (props.resume.source !== "local") return;
   await renameResume(props.resume.id, text);
   emit("update");
 };
