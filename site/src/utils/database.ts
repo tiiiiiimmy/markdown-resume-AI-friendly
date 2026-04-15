@@ -13,6 +13,8 @@ export const getResumeList = async () => {
   return Object.keys(storage)
     .map((i) => ({
       id: i,
+      created: storage[i].created || i,
+      source: storage[i].source || "local",
       ...storage[i]
     }))
     .sort((a, b) => (b.update || b.id).localeCompare(a.update || a.id));
@@ -50,6 +52,13 @@ export const setResume = (id: string, resume: ResumeStorageItem) => {
 
   setData("curResumeId", id);
   setData("curResumeName", resume.name);
+  setData("curResumeSource", resume.source || "local");
+  setData("curResumeFileName", resume.fileName || null);
+  setData("curResumeFileUpdate", resume.source === "file" ? resume.update : null);
+  setData(
+    "curResumeFileSyncedContent",
+    resume.source === "file" ? resume.markdown : ""
+  );
   setResumeMd(resume.markdown);
   setResumeCss(resume.css);
   setResumeStyles(resume.styles);
@@ -81,6 +90,8 @@ export const newResume = async () => {
     markdown: DEFAULT_MD_CONTENT,
     css: DEFAULT_CSS_CONTENT,
     styles: DEFAULT_STYLES,
+    created: id,
+    source: "local",
     update: id
   } as ResumeStorageItem;
 
@@ -197,6 +208,9 @@ export const duplicateResume = async (id: string) => {
     const oldName = resume.name;
 
     resume.name = oldName + " Copy";
+    resume.source = "local";
+    resume.fileName = undefined;
+    resume.created = newId;
     resume.update = newId;
     storage[newId] = resume;
 
