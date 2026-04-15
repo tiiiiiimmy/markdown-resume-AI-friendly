@@ -1,6 +1,6 @@
 <template>
   <Editable
-    v-if="data.curResumeSource !== 'file'"
+    v-if="data.curResumeSource === 'local'"
     id="edit-rename"
     class="w-100 mx-2 text-sm md:text-base"
     :default="data.curResumeName"
