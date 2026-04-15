@@ -8,10 +8,19 @@
 import { useShortcuts } from "@renovamen/vue-shortcuts";
 import type { ResumeStorageItem } from "~/types";
 
-const { data } = useDataStore();
+const { data, setData } = useDataStore();
 const { styles } = useStyleStore();
+const toast = useToast();
 
-const save = () => {
+const save = async () => {
+  if (data.curResumeSource === "file" && data.curResumeFileName) {
+    const resume = await saveFileResume(data.curResumeFileName, data.mdContent);
+    setData("curResumeFileUpdate", resume.update);
+    setData("curResumeFileSyncedContent", resume.markdown);
+    toast.save();
+    return;
+  }
+
   const id = data.curResumeId;
   const update = new Date().getTime().toString(); // record update time
   const resume = {
@@ -19,10 +28,12 @@ const save = () => {
     markdown: data.mdContent,
     css: data.cssContent,
     styles: toRaw(styles),
+    created: id!,
+    source: "local",
     update: update
   } as ResumeStorageItem;
 
-  saveResume(id!, resume);
+  await saveResume(id!, resume);
 };
 
 useShortcuts("ctrl+s", save);
