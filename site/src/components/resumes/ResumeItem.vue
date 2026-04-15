@@ -10,7 +10,7 @@
       >
         <nuxt-link :to="$nuxt.$localePath(`/edit/${props.resume.id}`)">
           <ResumeRender
-            :id="resume.id"
+            :id="renderId"
             ref="render"
             :markdown="resume.markdown"
             :styles="resume.styles"
@@ -45,17 +45,18 @@ const emit = defineEmits<{
 
 const width = PAPER[props.resume.styles.paper].w;
 const height = PAPER[props.resume.styles.paper].h;
+const renderId = getResumeRenderId(props.resume.id);
 
 const render = ref();
 
 const updateResumeItem = async () => {
   // set resume backbone styles
-  setBackboneCss(props.resume.css, props.resume.id);
+  setBackboneCss(props.resume.css, renderId);
   // load Google fonts
   await resolveGoogleFont(props.resume.styles.fontEN);
   await resolveGoogleFont(props.resume.styles.fontCJK);
   // set resume dynamic styles
-  setDynamicCss(props.resume.styles, props.resume.id);
+  setDynamicCss(props.resume.styles, renderId);
   // force update SmartPage
   render.value.forceUpdate();
 };
