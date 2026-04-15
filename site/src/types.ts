@@ -12,6 +12,8 @@ export type ResumeStyles = {
   paper: PaperType;
 };
 
+export type ResumeSource = "local" | "file";
+
 export type SystemData = {
   mdContent: string;
   cssContent: string;
@@ -19,6 +21,10 @@ export type SystemData = {
   cssFlag: boolean;
   curResumeId: string | null;
   curResumeName: string;
+  curResumeSource: ResumeSource;
+  curResumeFileName: string | null;
+  curResumeFileUpdate: string | null;
+  curResumeFileSyncedContent: string;
 };
 
 export type ToastFlagData = {
@@ -53,6 +59,9 @@ export type ResumeStorageItem = {
   css: string;
   styles: ResumeStyles;
   update: string;
+  created?: string;
+  source?: ResumeSource;
+  fileName?: string;
 };
 
 export type ResumeStorage = {
