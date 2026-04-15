@@ -2,7 +2,6 @@
 
 <p align="center">Write an ATS-friendly resume in Markdown. Available for everyone, optimized for developers.</p>
 
-<p align="center"><a href="https://www.junian.dev/markdown-resume/"><strong>Start Writing Now</strong></a>!</p>
 
 <img align="center" src="https://raw.githubusercontent.com/junian/markdown-resume/assets/img/markdown-resume-screenshot-00.jpg"/>
 
@@ -27,6 +26,19 @@ But I hope it helps.
 ## Notice
 
 Highly recommend using Chromium-based browsers, e.g., [Chrome][chrome] or [Microsoft Edge][edge].
+
+Update!  16/04/2026 By Timmy
+
+File-based resumes can live under the project-level [`resume`](resume/) folder, for example `resume/a.md`.
+
+- File resumes are listed on the home page automatically
+- Opening a file resume reads the latest Markdown directly from disk
+- Saving the `.md` file updates the web preview automatically while that editor page is open
+
+This mode requires the Nuxt server runtime (`pnpm dev`, or `pnpm build` + `pnpm serve`), because static export cannot watch local files.
+
+So you can use any AI IDE or AI CLI to modify your CV.md, then edit and export it on http://localhost:3000/markdown-resume/edit/CV.md, hope this can make your job seeking road much easier.
+
 
 ## Features
 
@@ -78,14 +90,6 @@ pnpm dev
 pnpm build
 ```
 
-File-based resumes can live under the project-level [`resume`](resume/) folder, for example `resume/a.md`.
-
-- File resumes are listed on the home page automatically
-- Opening a file resume reads the latest Markdown directly from disk
-- Saving the `.md` file updates the web preview automatically while that editor page is open
-
-This mode requires the Nuxt server runtime (`pnpm dev`, or `pnpm build` + `pnpm serve`), because static export cannot watch local files.
-
 ## Credits
 
 - Original project: [Renovamen/oh-my-cv](https://github.com/Renovamen/oh-my-cv)
@@ -96,6 +100,8 @@ This mode requires the Nuxt server runtime (`pnpm dev`, or `pnpm build` + `pnpm 
 This project is licensed under the [MIT](LICENSE) license.
 
 ---
+
+Modified by [Timmy](https://tiiiiiimmy.github.io/)
 
 Made with ☕ by [Junian.dev](https://www.junian.dev).
 
