@@ -21,6 +21,7 @@ resumes:
   created: "Created: "
   updated: "Updated: "
   new: New
+  new_cover_letter: Cover Letter
   save: Save
   saveas: Backup DB ...
   import: Restore DB ...

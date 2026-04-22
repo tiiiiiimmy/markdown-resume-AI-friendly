@@ -21,6 +21,7 @@ resumes:
   created: "Dibuat: "
   updated: "Diperbarui: "
   new: Baru
+  new_cover_letter: Surat Lamaran
   save: Simpan
   saveas: Cadangkan DB ...
   import: Pulihkan DB ...

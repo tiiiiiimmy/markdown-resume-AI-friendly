@@ -21,6 +21,7 @@ resumes:
   created: "Creado: "
   updated: "Actualizado: "
   new: Nuevo
+  new_cover_letter: Carta de presentación
   save: Guardar
   saveas: Guardar como...
   import: Importar desde...

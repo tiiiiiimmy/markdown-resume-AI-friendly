@@ -21,6 +21,7 @@ resumes:
   created: 创建于：
   updated: 更新于：
   new: 新建
+  new_cover_letter: 求职信
   save: 保存
   saveas: 另存为...
   import: 从...导入
