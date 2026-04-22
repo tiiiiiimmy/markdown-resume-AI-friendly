@@ -133,7 +133,7 @@ const generateHtmlDocument = () => {
   const fullCss = data.cssContent + dynamicCss;
   
   // Create complete HTML document
-  const scriptTag = '<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"><\/script>';
+  const scriptTag = '<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"><\/script>\n  <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js"><\/script>';
   const htmlDocument = `<!DOCTYPE html>
 <html lang="en">
 <head>

@@ -7,7 +7,7 @@ export const DEFAULT_STYLES = {
   marginH: 45,
   lineHeight: 1.3,
   paragraphSpace: 5,
-  themeColor: "#000000",
+  themeColor: "#0C3303",
   fontCJK: {
     name: "华康宋体",
     fontFamily: "HKST"
@@ -220,6 +220,11 @@ ${PREVIEW_SELECTOR} dl dt {
 
 ${PREVIEW_SELECTOR} dl dd:not(:last-child) {
   flex: 1;
+}
+
+${PREVIEW_SELECTOR} dl dd:last-child {
+  margin-left: auto;
+  text-align: right;
 }
 
 /* Tex */

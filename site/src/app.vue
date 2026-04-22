@@ -36,6 +36,10 @@ useHead({
       src: "https://code.iconify.design/2/2.2.1/iconify.min.js",
       type: "module",
       tagPosition: "bodyClose"
+    },
+    {
+      src: "https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js",
+      tagPosition: "bodyClose"
     }
   ]
 });
