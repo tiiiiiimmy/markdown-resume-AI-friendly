@@ -1,6 +1,6 @@
 import * as localForage from "localforage";
 import { downloadFile, uploadFile, copy, isClient } from "@renovamen/utils";
-import { DEFAULT_STYLES, DEFAULT_NAME, DEFAULT_MD_CONTENT, DEFAULT_CSS_CONTENT } from ".";
+import { DEFAULT_STYLES, DEFAULT_NAME, DEFAULT_MD_CONTENT, DEFAULT_CSS_CONTENT, DEFAULT_COVER_LETTER_NAME, COVER_LETTER_MD_CONTENT, COVER_LETTER_CSS_CONTENT } from ".";
 import type { ResumeStorage, ResumeStorageItem, ResumeStyles } from "~/types";
 
 const MARKDOWN_RESUME_KEY = "MARKDOWN_RESUME_data";
@@ -83,12 +83,13 @@ export const saveResume = async (id: string, resume: ResumeStorageItem) => {
 /**
  * New a resume using default styles and content
  */
-export const newResume = async () => {
+export const newResume = async (template: "resume" | "cover-letter" = "resume") => {
   const id = new Date().getTime().toString(); // generate a new id
+  const isCoverLetter = template === "cover-letter";
   const resume = {
-    name: DEFAULT_NAME,
-    markdown: DEFAULT_MD_CONTENT,
-    css: DEFAULT_CSS_CONTENT,
+    name: isCoverLetter ? DEFAULT_COVER_LETTER_NAME : DEFAULT_NAME,
+    markdown: isCoverLetter ? COVER_LETTER_MD_CONTENT : DEFAULT_MD_CONTENT,
+    css: isCoverLetter ? COVER_LETTER_CSS_CONTENT : DEFAULT_CSS_CONTENT,
     styles: DEFAULT_STYLES,
     created: id,
     source: "local",

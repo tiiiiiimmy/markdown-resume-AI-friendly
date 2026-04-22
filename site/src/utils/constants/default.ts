@@ -116,6 +116,31 @@ Huangdu Institute of Technology
 
 `;
 
+export const DEFAULT_COVER_LETTER_NAME = "My Cover Letter";
+
+export const COVER_LETTER_MD_CONTENT = `---
+---
+
+<div class="cl-header">
+<div class="cl-col cl-col-name"><strong>Bruce Wayne</strong><br>Software Engineer</div>
+<div class="cl-col"><a href="mailto:bruce@example.com">bruce@example.com</a><br>(+1) 123-456-7890</div>
+<div class="cl-col"><a href="https://example.com" target="_blank" rel="noopener">Portfolio</a><br><a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a></div>
+</div>
+
+Dear Hiring Manager,
+
+Building beautiful, accessible, and high-performing applications has always been at the heart of my work. With hands-on experience in **React.js, TypeScript, and modern web development**, I'm excited by the opportunity to contribute to your team.
+
+During my recent role at **Example Company**, I led the development of key features that improved user engagement by 40% and reduced load time significantly. I collaborated closely with designers and developers in an agile environment — experience that mirrors your cross-disciplinary workflow.
+
+My background gives me a strong eye for usability and visual consistency. I've applied responsive, component-driven development to create seamless user journeys that align with your focus on scalable, content-rich applications.
+
+I would welcome the opportunity to discuss how my skills and experience align with your team's needs. Thank you for your time and consideration.
+
+Warm regards,
+Bruce Wayne
+`;
+
 export const PREVIEW_SELECTOR = "#vue-smart-pages-preview";
 
 export const DEFAULT_CSS_CONTENT = `/* Backbone CSS for Resume Template 1 */
@@ -147,7 +172,7 @@ ${PREVIEW_SELECTOR} h3 {
 }
 
 ${PREVIEW_SELECTOR} h1 {
-  font-size: 2.5em;
+  font-size: 2em;
   letter-spacing: 0.1em;
   text-align: center;
   margin-bottom: 0.25em;
@@ -172,7 +197,7 @@ ${PREVIEW_SELECTOR} h2 {
 ${PREVIEW_SELECTOR} ul,
 ${PREVIEW_SELECTOR} ol {
   padding-left: 1.5em;
-  margin: 0.2em 0 1.0em 0;
+  margin: 0.2em 0 0.3em 0;
 }
 
 ${PREVIEW_SELECTOR} ul {
@@ -189,7 +214,10 @@ ${PREVIEW_SELECTOR} dl {
   display: flex;
 }
 
-${PREVIEW_SELECTOR} dl dt,
+${PREVIEW_SELECTOR} dl dt {
+  flex: 0.6;
+}
+
 ${PREVIEW_SELECTOR} dl dd:not(:last-child) {
   flex: 1;
 }
@@ -259,6 +287,77 @@ ${PREVIEW_SELECTOR} sup.crossref-ref {
   }
 
   .dark ${PREVIEW_SELECTOR} a {
+    color: black !important;
+  }
+}
+`;
+
+export const COVER_LETTER_CSS_CONTENT = `/* Cover Letter Template */
+
+/* Background gradient */
+${PREVIEW_SELECTOR} {
+  background: linear-gradient(215deg, #f8f4ff 1%, #ffffff 25%, #ffffff 82%, #fffcef 100%) !important;
+}
+
+/* Hide the empty default header */
+${PREVIEW_SELECTOR} .resume-header {
+  display: none;
+}
+
+/* 3-column header */
+${PREVIEW_SELECTOR} .cl-header {
+  display: flex;
+  gap: 2em;
+  margin-bottom: 3em;
+}
+
+${PREVIEW_SELECTOR} .cl-col {
+  flex: 1;
+  border-top: 1px solid #663eca;
+  padding-top: 0.75em;
+  min-width: 0;
+}
+
+${PREVIEW_SELECTOR} .cl-col strong {
+  display: block;
+  font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  font-weight: 500;
+}
+
+${PREVIEW_SELECTOR} .cl-col a {
+  color: inherit;
+}
+
+/* Letter body paragraphs */
+${PREVIEW_SELECTOR} p {
+  line-height: 1.6;
+  margin-bottom: 0.5em !important;
+}
+
+/* Avatar — hidden when src is empty */
+${PREVIEW_SELECTOR} .cl-avatar {
+  width: 7em;
+  height: 7em;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 1.5em;
+}
+
+${PREVIEW_SELECTOR} .cl-avatar[src=""] {
+  display: none;
+}
+
+/* Dark & print mode */
+
+.dark ${PREVIEW_SELECTOR} {
+  background: #334155 !important;
+  color: #e5e7eb;
+}
+
+@media print {
+  ${PREVIEW_SELECTOR} {
+    background: white !important;
     color: black !important;
   }
 }
