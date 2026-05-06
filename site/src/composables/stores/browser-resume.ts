@@ -1,3 +1,4 @@
+import localForage from "localforage";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { ResumeListItem, ResumeStorageItem } from "~/types";
 import {
@@ -61,9 +62,38 @@ const collectMarkdownFileHandles = async (directoryHandle: FileSystemDirectoryHa
   return fileHandles;
 };
 
+type StoredFileHandle = { handle: FileSystemFileHandle; created: string };
+
+// Lazily created on first client-side use — avoids SSR crash (no IndexedDB in Node).
+let _dirHandleStorage: ReturnType<typeof localForage.createInstance> | null = null;
+let _fileHandleStorage: ReturnType<typeof localForage.createInstance> | null = null;
+
+const getDirHandleStorage = () => {
+  if (!_dirHandleStorage) {
+    _dirHandleStorage = localForage.createInstance({
+      driver: localForage.INDEXEDDB,
+      name: "markdown-resume-browser",
+      storeName: "dir-handles"
+    });
+  }
+  return _dirHandleStorage;
+};
+
+const getFileHandleStorage = () => {
+  if (!_fileHandleStorage) {
+    _fileHandleStorage = localForage.createInstance({
+      driver: localForage.INDEXEDDB,
+      name: "markdown-resume-browser",
+      storeName: "file-handles"
+    });
+  }
+  return _fileHandleStorage;
+};
+
 export const useBrowserResumeStore = defineStore("browserResume", () => {
   const resumes = ref<Record<string, ResumeListItem>>({});
   const handleMap = new Map<string, FileSystemFileHandle>();
+  const dirHandleMap = new Map<string, FileSystemDirectoryHandle>();
 
   const resumeList = computed(() => Object.values(resumes.value).sort(sortResumes));
 
@@ -77,6 +107,14 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
     }
 
     return null;
+  };
+
+  const removeResume = (id: string) => {
+    handleMap.delete(id);
+    getFileHandleStorage().removeItem(id).catch(() => {});
+    const next = { ...resumes.value };
+    delete next[id];
+    resumes.value = next;
   };
 
   const upsertResume = async (handle: FileSystemFileHandle) => {
@@ -94,13 +132,6 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
     };
 
     return resume;
-  };
-
-  const removeResume = (id: string) => {
-    handleMap.delete(id);
-    const next = { ...resumes.value };
-    delete next[id];
-    resumes.value = next;
   };
 
   const getResume = async (id: string): Promise<ResumeStorageItem | null> => {
@@ -133,8 +164,26 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
     }
   };
 
+  const scanDirectory = async (dirHandle: FileSystemDirectoryHandle) => {
+    const fileHandles = await collectMarkdownFileHandles(dirHandle);
+    for (const fileHandle of fileHandles) {
+      await upsertResume(fileHandle);
+    }
+  };
+
   const refreshResumes = async () => {
     await Promise.all(resumeList.value.map((resume) => refreshResume(resume.id)));
+
+    // Re-scan stored directories to pick up newly added files
+    for (const dirHandle of dirHandleMap.values()) {
+      try {
+        const perm = await dirHandle.queryPermission({ mode: "read" });
+        if (perm !== "granted") continue;
+        await scanDirectory(dirHandle);
+      } catch {
+        // Ignore unavailable directories
+      }
+    }
   };
 
   const ensureWritePermission = async (handle: FileSystemFileHandle) => {
@@ -158,6 +207,53 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
     return refreshResume(id);
   };
 
+  /**
+   * Restore persisted handles from IndexedDB on page load.
+   * Handles that still have "granted" permission are loaded immediately.
+   * Handles requiring "prompt" are kept in the map for potential later use.
+   */
+  const initFromStorage = async () => {
+    if (!import.meta.client) return;
+
+    // Restore individual file handles
+    const fileEntries: Array<[string, StoredFileHandle]> = [];
+    await getFileHandleStorage().iterate<StoredFileHandle, void>((value, key) => {
+      fileEntries.push([key, value]);
+    });
+
+    await Promise.all(
+      fileEntries.map(async ([id, stored]) => {
+        try {
+          const perm = await stored.handle.queryPermission({ mode: "read" });
+          if (perm !== "granted") return;
+          handleMap.set(id, stored.handle);
+          const resume = await getResumeFromHandle(id, stored.handle, stored.created);
+          resumes.value = { ...resumes.value, [id]: resume };
+        } catch {
+          await getFileHandleStorage().removeItem(id);
+        }
+      })
+    );
+
+    // Restore directory handles
+    const dirEntries: Array<[string, FileSystemDirectoryHandle]> = [];
+    await getDirHandleStorage().iterate<FileSystemDirectoryHandle, void>((handle, id) => {
+      dirEntries.push([id, handle]);
+    });
+
+    await Promise.all(
+      dirEntries.map(async ([id, dirHandle]) => {
+        try {
+          const perm = await dirHandle.queryPermission({ mode: "read" });
+          dirHandleMap.set(id, dirHandle);
+          if (perm === "granted") await scanDirectory(dirHandle);
+        } catch {
+          await getDirHandleStorage().removeItem(id);
+        }
+      })
+    );
+  };
+
   const pickFile = async () => {
     if (!isBrowserFileAccessSupported()) {
       return { added: 0, unsupported: true };
@@ -175,7 +271,14 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
       let added = 0;
 
       for (const handle of handles) {
-        if (await upsertResume(handle)) added += 1;
+        const resume = await upsertResume(handle);
+        if (resume) {
+          added += 1;
+          await getFileHandleStorage().setItem(resume.id, {
+            handle,
+            created: resume.created || resume.update
+          } as StoredFileHandle);
+        }
       }
 
       return { added };
@@ -197,6 +300,11 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
       const handles = await collectMarkdownFileHandles(directoryHandle);
       if (!handles.length) return { added: 0, empty: true };
 
+      // Persist directory handle so it survives page reloads
+      const dirId = `dir__${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      dirHandleMap.set(dirId, directoryHandle);
+      await getDirHandleStorage().setItem(dirId, directoryHandle);
+
       let added = 0;
 
       for (const handle of handles) {
@@ -217,7 +325,8 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
     refreshResumes,
     saveResume,
     pickFile,
-    pickDirectory
+    pickDirectory,
+    initFromStorage
   };
 });
 

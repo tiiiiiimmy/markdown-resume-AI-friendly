@@ -8,6 +8,20 @@ declare interface Window {
   MonacoEnvironment: Environment;
 }
 
+// File System Access API — permission methods missing from TypeScript's built-in lib
+declare global {
+  interface FileSystemHandle {
+    queryPermission(descriptor?: { mode?: "read" | "readwrite" }): Promise<PermissionState>;
+    requestPermission(descriptor?: { mode?: "read" | "readwrite" }): Promise<PermissionState>;
+  }
+
+  interface FileSystemDirectoryHandle {
+    values(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle>;
+    keys(): AsyncIterableIterator<string>;
+    entries(): AsyncIterableIterator<[string, FileSystemDirectoryHandle | FileSystemFileHandle]>;
+  }
+}
+
 declare module "*.vue" {
   import { type DefineComponent } from "vue";
   const component: DefineComponent<{}, {}, any>;

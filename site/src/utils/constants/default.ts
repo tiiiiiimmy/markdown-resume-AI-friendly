@@ -215,7 +215,7 @@ ${PREVIEW_SELECTOR} dl {
 }
 
 ${PREVIEW_SELECTOR} dl dt {
-  flex: 0.6;
+  flex: 1;
 }
 
 ${PREVIEW_SELECTOR} dl dd:not(:last-child) {
@@ -223,7 +223,23 @@ ${PREVIEW_SELECTOR} dl dd:not(:last-child) {
 }
 
 ${PREVIEW_SELECTOR} dl dd:last-child {
-  margin-left: auto;
+  flex: 1;
+  text-align: right;
+}
+
+${PREVIEW_SELECTOR} h2 ~ dl dt,
+${PREVIEW_SELECTOR} h3 ~ dl dt {
+  flex: 1.2;
+}
+
+${PREVIEW_SELECTOR} h2 ~ dl dd:not(:last-child),
+${PREVIEW_SELECTOR} h3 ~ dl dd:not(:last-child) {
+  flex: 2;
+}
+
+${PREVIEW_SELECTOR} h2 ~ dl dd:last-child,
+${PREVIEW_SELECTOR} h3 ~ dl dd:last-child {
+  flex: 1;
   text-align: right;
 }
 

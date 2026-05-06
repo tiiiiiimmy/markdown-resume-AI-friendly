@@ -45,7 +45,10 @@ const loadResumes = async () => {
   fileResumes.value = nextFileResumes;
 };
 
-onMounted(loadResumes);
+onMounted(async () => {
+  await browserResumeStore.initFromStorage();
+  await loadResumes();
+});
 
 useIntervalFn(async () => {
   await browserResumeStore.refreshResumes();
