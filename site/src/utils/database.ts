@@ -1,6 +1,7 @@
 import * as localForage from "localforage";
 import { downloadFile, uploadFile, copy, isClient } from "@renovamen/utils";
 import { DEFAULT_STYLES, DEFAULT_NAME, DEFAULT_MD_CONTENT, DEFAULT_CSS_CONTENT, DEFAULT_COVER_LETTER_NAME, COVER_LETTER_MD_CONTENT, COVER_LETTER_CSS_CONTENT } from ".";
+import { loadStylesCache, deleteStylesCache } from "~/utils/style-cache";
 import type { ResumeStorage, ResumeStorageItem, ResumeStyles } from "~/types";
 
 const MARKDOWN_RESUME_KEY = "MARKDOWN_RESUME_data";
@@ -21,10 +22,8 @@ export const getResumeList = async () => {
 };
 
 export const setResumeStyles = (styles: ResumeStyles) => {
-  const { setStyle } = useStyleStore();
-
-  for (const key of Object.keys(styles) as Array<keyof ResumeStyles>)
-    setStyle(key, styles[key]);
+  const { setStyles } = useStyleStore();
+  void setStyles(styles);
 };
 
 export const setResumeMd = (content: string) => {
@@ -61,7 +60,8 @@ export const setResume = (id: string, resume: ResumeStorageItem) => {
   );
   setResumeMd(resume.markdown);
   setResumeCss(resume.css);
-  setResumeStyles(resume.styles);
+  const cachedStyles = loadStylesCache(id);
+  setResumeStyles(cachedStyles ?? resume.styles);
 };
 
 /**
@@ -180,7 +180,7 @@ export const deleteResume = async (id: string) => {
     delete storage[id];
 
     await localForage.setItem(MARKDOWN_RESUME_KEY, storage);
-
+    deleteStylesCache(id);
     toast.delete(name);
   }
 };

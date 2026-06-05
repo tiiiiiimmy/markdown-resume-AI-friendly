@@ -7,6 +7,7 @@ import {
   isBrowserFileAccessSupported
 } from "~/utils/browser-file-resumes";
 import { DEFAULT_CSS_CONTENT, DEFAULT_STYLES } from "~/utils";
+import { deleteStylesCache } from "~/utils/style-cache";
 
 const MARKDOWN_PICKER_TYPES = [
   {
@@ -112,6 +113,7 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
   const removeResume = (id: string) => {
     handleMap.delete(id);
     getFileHandleStorage().removeItem(id).catch(() => {});
+    deleteStylesCache(id);
     const next = { ...resumes.value };
     delete next[id];
     resumes.value = next;
@@ -235,23 +237,22 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
       })
     );
 
-    // Restore directory handles
+    // Restore directory handles — scan sequentially so handleMap is fully populated
+    // before the next scan starts, preventing duplicate entries from concurrent upserts.
     const dirEntries: Array<[string, FileSystemDirectoryHandle]> = [];
     await getDirHandleStorage().iterate<FileSystemDirectoryHandle, void>((handle, id) => {
       dirEntries.push([id, handle]);
     });
 
-    await Promise.all(
-      dirEntries.map(async ([id, dirHandle]) => {
-        try {
-          const perm = await dirHandle.queryPermission({ mode: "read" });
-          dirHandleMap.set(id, dirHandle);
-          if (perm === "granted") await scanDirectory(dirHandle);
-        } catch {
-          await getDirHandleStorage().removeItem(id);
-        }
-      })
-    );
+    for (const [id, dirHandle] of dirEntries) {
+      try {
+        const perm = await dirHandle.queryPermission({ mode: "read" });
+        dirHandleMap.set(id, dirHandle);
+        if (perm === "granted") await scanDirectory(dirHandle);
+      } catch {
+        await getDirHandleStorage().removeItem(id);
+      }
+    }
   };
 
   const pickFile = async () => {
@@ -300,10 +301,25 @@ export const useBrowserResumeStore = defineStore("browserResume", () => {
       const handles = await collectMarkdownFileHandles(directoryHandle);
       if (!handles.length) return { added: 0, empty: true };
 
-      // Persist directory handle so it survives page reloads
-      const dirId = `dir__${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      dirHandleMap.set(dirId, directoryHandle);
-      await getDirHandleStorage().setItem(dirId, directoryHandle);
+      // Dedup: if this directory is already tracked, reuse the existing entry
+      // instead of storing a second handle that would cause duplicate scans on reload.
+      let dirId: string | null = null;
+      for (const [existingId, existingHandle] of dirHandleMap.entries()) {
+        try {
+          if (await existingHandle.isSameEntry(directoryHandle)) {
+            dirId = existingId;
+            break;
+          }
+        } catch {
+          // stale handle, ignore
+        }
+      }
+
+      if (!dirId) {
+        dirId = `dir__${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        dirHandleMap.set(dirId, directoryHandle);
+        await getDirHandleStorage().setItem(dirId, directoryHandle);
+      }
 
       let added = 0;
 

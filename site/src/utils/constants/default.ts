@@ -3,10 +3,10 @@ import type { ResumeStyles } from "~/types";
 export const DEFAULT_NAME = "My Resume";
 
 export const DEFAULT_STYLES = {
-  marginV: 55,
+  marginV: 20,
   marginH: 45,
   lineHeight: 1.3,
-  paragraphSpace: 5,
+  paragraphSpace: 4,
   themeColor: "#0C3303",
   fontCJK: {
     name: "华康宋体",
@@ -172,15 +172,15 @@ ${PREVIEW_SELECTOR} h3 {
 }
 
 ${PREVIEW_SELECTOR} h1 {
-  font-size: 2em;
+  font-size: 1.8em;
   letter-spacing: 0.1em;
-  text-align: center;
-  margin-bottom: 0.25em;
+  text-align: left;
+  margin-bottom: 0.375em;
 }
 
 ${PREVIEW_SELECTOR} h2,
 ${PREVIEW_SELECTOR} h3 {
-  margin-bottom: 0.25em;
+  margin-bottom: 0.375em;
   margin-top: 1.0em;
   font-size: 1.2em;
 }
@@ -188,7 +188,7 @@ ${PREVIEW_SELECTOR} h3 {
 ${PREVIEW_SELECTOR} h1,
 ${PREVIEW_SELECTOR} h2 {
   border-bottom-style: solid;
-  border-bottom-width: 1px;
+  border-bottom-width: 0.1px;
   border-bottom-color: darkgrey;
 }
 
@@ -243,6 +243,30 @@ ${PREVIEW_SELECTOR} h3 ~ dl dd:last-child {
   text-align: right;
 }
 
+/* Experience entry title row: one font size larger than body */
+
+${PREVIEW_SELECTOR} h2 ~ dl,
+${PREVIEW_SELECTOR} h3 ~ dl {
+  font-size: 1.083em;
+}
+
+/* Experience section spacing */
+
+${PREVIEW_SELECTOR} h2 ~ dl + p,
+${PREVIEW_SELECTOR} h3 ~ dl + p {
+  margin-top: 0.3em;
+}
+
+${PREVIEW_SELECTOR} h2 ~ p + ul,
+${PREVIEW_SELECTOR} h3 ~ p + ul {
+  margin-top: 0.3em;
+}
+
+${PREVIEW_SELECTOR} h2 ~ ul > li,
+${PREVIEW_SELECTOR} h3 ~ ul > li {
+  margin-bottom: 0.2em;
+}
+
 /* Tex */
 
 ${PREVIEW_SELECTOR} :not(span.katex-display) > span.katex {
@@ -266,7 +290,7 @@ ${PREVIEW_SELECTOR} .resume-header {
 }
 
 ${PREVIEW_SELECTOR} .resume-header h1 {
-  text-align: center;
+  text-align: left;
   line-height: 1;
   margin-bottom: 8px;
 }
